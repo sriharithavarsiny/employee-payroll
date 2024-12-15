@@ -1,0 +1,192 @@
+import java.awt.*;
+import java.awt.event.*;
+import java.util.ArrayList;
+
+class Employee {
+    int id;
+    String name;
+    double basicSalary;
+    double deductions;
+    double bonuses;
+
+    public Employee(int id, String name, double basicSalary, double deductions, double bonuses) {
+        this.id = id;
+        this.name = name;
+        this.basicSalary = basicSalary;
+        this.deductions = deductions;
+        this.bonuses = bonuses;
+    }
+
+    public double calculateNetSalary() {
+        return basicSalary + bonuses - deductions;
+    }
+
+    @Override
+    public String toString() {
+        return "ID: " + id + ", Name: " + name + ", Net Salary: $" + calculateNetSalary();
+    }
+}
+
+class PayrollProcessor {
+    ArrayList<Employee> employeeList = new ArrayList<>();
+
+    public void addEmployee(Employee employee) {
+        employeeList.add(employee);
+    }
+
+    public String generatePayroll() {
+        StringBuilder payrollReport = new StringBuilder("--- Payroll Report ---\n");
+        for (Employee emp : employeeList) {
+            payrollReport.append(emp.toString()).append("\n");
+        }
+        return payrollReport.toString();
+    }
+
+    public Employee findEmployeeById(int id) {
+        for (Employee emp : employeeList) {
+            if (emp.id == id) {
+                return emp;
+            }
+        }
+        return null;
+    }
+}
+
+public class EmployeePayrollSystemAWT extends Frame {
+    PayrollProcessor payrollProcessor = new PayrollProcessor();
+
+    TextField idField, nameField, basicSalaryField, deductionsField, bonusesField, searchField;
+    TextArea outputArea;
+
+    public EmployeePayrollSystemAWT() {
+        setLayout(new FlowLayout());
+
+        Label title = new Label("Employee Payroll Management System");
+        title.setFont(new Font("Arial", Font.BOLD, 16));
+        title.setForeground(Color.MAGENTA);
+        add(title);
+
+        add(new Label("Employee ID:"));
+        idField = new TextField(10);
+        idField.setBackground(Color.CYAN);
+        add(idField);
+
+        add(new Label("Employee Name:"));
+        nameField = new TextField(20);
+        nameField.setBackground(Color.CYAN);
+        add(nameField);
+
+        add(new Label("Basic Salary:"));
+        basicSalaryField = new TextField(10);
+        basicSalaryField.setBackground(Color.CYAN);
+        add(basicSalaryField);
+
+        add(new Label("Deductions:"));
+        deductionsField = new TextField(10);
+        deductionsField.setBackground(Color.CYAN);
+        add(deductionsField);
+
+        add(new Label("Bonuses:"));
+        bonusesField = new TextField(10);
+        bonusesField.setBackground(Color.CYAN);
+        add(bonusesField);
+
+        Button addButton = new Button("Add Employee");
+        addButton.setBackground(Color.GREEN);
+        add(addButton);
+
+        Button generateButton = new Button("Generate Payroll");
+        generateButton.setBackground(Color.ORANGE);
+        add(generateButton);
+
+        Button searchButton = new Button("Find Employee");
+        searchButton.setBackground(Color.YELLOW);
+        add(searchButton);
+
+        Button exitButton = new Button("Exit");
+        exitButton.setBackground(Color.RED);
+        add(exitButton);
+
+        add(new Label("Search by ID:"));
+        searchField = new TextField(10);
+        searchField.setBackground(Color.CYAN);
+        add(searchField);
+
+        outputArea = new TextArea(10, 50);
+        outputArea.setEditable(false);
+        outputArea.setFont(new Font("Courier New", Font.PLAIN, 12));
+        outputArea.setBackground(Color.LIGHT_GRAY);
+        outputArea.setForeground(Color.BLACK);
+        add(outputArea);
+
+        addButton.addActionListener(e -> addEmployee());
+        generateButton.addActionListener(e -> generatePayroll());
+        searchButton.addActionListener(e -> findEmployee());
+        exitButton.addActionListener(e -> System.exit(0));
+
+        setTitle("Employee Payroll System");
+        setSize(600, 400);
+        setVisible(true);
+
+        addWindowListener(new WindowAdapter() {
+            public void windowClosing(WindowEvent we) {
+                System.exit(0);
+            }
+        });
+    }
+
+    private void addEmployee() {
+        try {
+            int id = Integer.parseInt(idField.getText());
+            String name = nameField.getText();
+            double basicSalary = Double.parseDouble(basicSalaryField.getText());
+            double deductions = Double.parseDouble(deductionsField.getText());
+            double bonuses = Double.parseDouble(bonusesField.getText());
+
+            Employee newEmployee = new Employee(id, name, basicSalary, deductions, bonuses);
+            payrollProcessor.addEmployee(newEmployee);
+
+            outputArea.setText("Employee added successfully!\n" + newEmployee.toString());
+            outputArea.setForeground(Color.GREEN);
+            clearFields();
+        } catch (NumberFormatException ex) {
+            outputArea.setText("Error: Invalid input. Please enter numeric values for ID, salary, deductions, and bonuses.");
+            outputArea.setForeground(Color.RED);
+        }
+    }
+
+    private void generatePayroll() {
+        String payrollReport = payrollProcessor.generatePayroll();
+        outputArea.setText(payrollReport.isEmpty() ? "No employees found." : payrollReport);
+        outputArea.setForeground(Color.BLUE);
+    }
+
+    private void findEmployee() {
+        try {
+            int searchId = Integer.parseInt(searchField.getText());
+            Employee foundEmployee = payrollProcessor.findEmployeeById(searchId);
+            if (foundEmployee != null) {
+                outputArea.setText("Employee Found:\n" + foundEmployee.toString());
+                outputArea.setForeground(Color.MAGENTA);
+            } else {
+                outputArea.setText("Employee not found.");
+                outputArea.setForeground(Color.RED);
+            }
+        } catch (NumberFormatException ex) {
+            outputArea.setText("Error: Invalid ID. Please enter a numeric value.");
+            outputArea.setForeground(Color.RED);
+        }
+    }
+
+    private void clearFields() {
+        idField.setText("");
+        nameField.setText("");
+        basicSalaryField.setText("");
+        deductionsField.setText("");
+        bonusesField.setText("");
+    }
+
+    public static void main(String[] args) {
+        new EmployeePayrollSystemAWT();
+    }
+}
